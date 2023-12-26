@@ -21,10 +21,14 @@ public interface StatRepository extends JpaRepository<Hit, Long> {
                                     @Param("start") LocalDateTime start,
                                     @Param("end") LocalDateTime end);
 
-    default List<Stat> getStats(List<String> uris, LocalDateTime start,
-                                LocalDateTime end, Boolean uniqueIp) {
+    default List<Stat> getStats(List<String> uris, LocalDateTime start, LocalDateTime end, Boolean uniqueIp) {
+        if (uris.isEmpty()) {
+            return getStats(start, end);
+        }
         return uniqueIp ? getViewStatsByUniqIp(uris, start, end) : getStats(uris, start, end);
     }
+
+
 
     @Query("SELECT new Stat(h.uri, h.app, COUNT(h.ip)) " +
             "FROM Hit h " +
@@ -32,16 +36,12 @@ public interface StatRepository extends JpaRepository<Hit, Long> {
             "AND h.uri IN :uris " +
             "GROUP BY h.app, h.uri " +
             "ORDER BY COUNT(h.ip) DESC")
-    List<Stat> getStats(@Param("uris") List<String> uris,
-                                @Param("start") LocalDateTime start,
-                                @Param("end") LocalDateTime end);
+    List<Stat> getStats(@Param("uris") List<String> uris, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     @Query("SELECT new Stat(h.uri, h.app, COUNT(h.ip)) " +
             "FROM Hit h " +
             "WHERE h.timestamp BETWEEN :start AND :end " +
             "GROUP BY h.app, h.uri " +
             "ORDER BY COUNT(h.ip) DESC")
-    List<Stat> getStats(
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end);
+    List<Stat> getStats(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

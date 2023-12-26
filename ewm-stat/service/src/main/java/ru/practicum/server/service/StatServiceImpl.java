@@ -31,10 +31,6 @@ public class StatServiceImpl implements StatService {
     @Override
     @Transactional(readOnly = true)
     public List<StatDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        if (uris.isEmpty()) {
-            return StatMapper.toStatDto(statRepository.getStats(start, end));
-        }
-
         return StatMapper.toStatDto(statRepository.getStats(uris, start, end, unique));
     }
 }

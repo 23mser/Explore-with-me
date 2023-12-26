@@ -1,13 +1,17 @@
 package ru.practicum.client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import ru.practicum.dto.HitDto;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public abstract class BaseClient {
     protected final RestTemplate rest;
 
@@ -15,62 +19,29 @@ public abstract class BaseClient {
         this.rest = rest;
     }
 
-    protected ResponseEntity<Object> get(String path) {
-        return get(path, null);
-    }
-
-    protected ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters) {
-        return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
-    }
-
-    protected <T> ResponseEntity<Object> post(String path, T body) {
+    protected ResponseEntity<String> post(String path, HitDto body) {
+        log.debug("Запрос POST c телом и без параметров.");
         return post(path, null, body);
     }
 
-    protected <T> ResponseEntity<Object> post(String path, @Nullable Map<String, Object> parameters, T body) {
+    protected ResponseEntity<String> post(String path, @Nullable Map<String, Object> parameters, HitDto body) {
+        log.debug("Запрос POST c телом и параметрами.");
         return makeAndSendRequest(HttpMethod.POST, path, parameters, body);
     }
 
-    protected <T> ResponseEntity<Object> put(String path, T body) {
-        return put(path, null, body);
-    }
+    private ResponseEntity<String> makeAndSendRequest(HttpMethod method, String path, @Nullable Map<String, Object> parameters, @Nullable HitDto body) {
+        HttpEntity<HitDto> requestEntity = new HttpEntity<>(body, defaultHeaders());
 
-    protected <T> ResponseEntity<Object> put(String path, @Nullable Map<String, Object> parameters, T body) {
-        return makeAndSendRequest(HttpMethod.PUT, path, parameters, body);
-    }
-
-    protected <T> ResponseEntity<Object> patch(String path, T body) {
-        return patch(path, null, body);
-    }
-
-    protected <T> ResponseEntity<Object> patch(String path) {
-        return patch(path, null, null);
-    }
-
-    protected <T> ResponseEntity<Object> patch(String path, @Nullable Map<String, Object> parameters, T body) {
-        return makeAndSendRequest(HttpMethod.PATCH, path, parameters, body);
-    }
-
-    protected ResponseEntity<Object> delete(String path) {
-        return delete(path, null);
-    }
-
-    protected ResponseEntity<Object> delete(String path, @Nullable Map<String, Object> parameters) {
-        return makeAndSendRequest(HttpMethod.DELETE, path, parameters, null);
-    }
-
-    private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path, @Nullable Map<String, Object> parameters, @Nullable T body) {
-        HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
-
-        ResponseEntity<Object> ewmServerResponse;
+        ResponseEntity<String> ewmServerResponse;
         try {
             if (parameters != null) {
-                ewmServerResponse = rest.exchange(path, method, requestEntity, Object.class, parameters);
+                ewmServerResponse = rest.exchange(path, method, requestEntity, String.class, parameters);
             } else {
-                ewmServerResponse = rest.exchange(path, method, requestEntity, Object.class);
+                ewmServerResponse = rest.exchange(path, method, requestEntity, String.class);
             }
         } catch (HttpStatusCodeException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
+            log.error("Caught HttpStatusCode exception.");
+            return ResponseEntity.status(e.getStatusCode()).body(Arrays.toString(e.getResponseBodyAsByteArray()));
         }
         return prepareGatewayResponse(ewmServerResponse);
     }
@@ -83,7 +54,7 @@ public abstract class BaseClient {
         return headers;
     }
 
-    private static ResponseEntity<Object> prepareGatewayResponse(ResponseEntity<Object> response) {
+    private static ResponseEntity<String> prepareGatewayResponse(ResponseEntity<String> response) {
         if (response.getStatusCode().is2xxSuccessful()) {
             return response;
         }
