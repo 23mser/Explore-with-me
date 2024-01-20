@@ -4,32 +4,34 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.compilatons.dto.CompilationDto;
+import ru.practicum.ewm.compilatons.dto.CompilationUpdateRequest;
 import ru.practicum.ewm.compilatons.dto.NewCompilationDto;
 import ru.practicum.ewm.compilatons.service.CompilationService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
 @RestController
+@RequestMapping("/admin/compilations")
 @RequiredArgsConstructor
 public class CompilationControllerAdmin {
-
     private final CompilationService compilationService;
 
-    @PostMapping("/admin/compilations")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto create(@RequestBody @Valid NewCompilationDto newCompilationDto) {
-        return compilationService.create(newCompilationDto);
+    public CompilationDto createCompilation(@RequestBody @Valid NewCompilationDto request) {
+        return compilationService.createCompilation(request);
     }
 
-    @PatchMapping("/admin/compilations/{compId}")
-    public CompilationDto update(@PathVariable("compId") Long compId,
-                                 @RequestBody NewCompilationDto newCompilationDto) {
-        return compilationService.update(compId, newCompilationDto);
+    @PatchMapping("/{compId}")
+    public CompilationDto updateCompilation(@PathVariable(name = "compId") @Positive Long compilationId,
+                                            @RequestBody @Valid CompilationUpdateRequest request) {
+        return compilationService.updateCompilationById(compilationId, request);
     }
 
-    @DeleteMapping("/admin/compilations/{compId}")
+    @DeleteMapping("/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("compId") Long compId) {
-        compilationService.delete(compId);
+    public void deleteCompilation(@PathVariable(name = "compId") @Positive Long compilationId) {
+        compilationService.deleteCompilationById(compilationId);
     }
 }

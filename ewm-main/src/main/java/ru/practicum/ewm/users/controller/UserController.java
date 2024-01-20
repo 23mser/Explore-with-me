@@ -3,35 +3,36 @@ package ru.practicum.ewm.users.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.users.dto.NewUserDto;
-import ru.practicum.ewm.users.service.UserService;
 import ru.practicum.ewm.users.dto.UserDto;
+import ru.practicum.ewm.users.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
+@RequestMapping("/admin/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/admin/users")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto create(@RequestBody @Valid NewUserDto newUserDto) {
-        return userService.create(newUserDto);
+    public UserDto createUser(@RequestBody @Valid UserDto request) {
+        return userService.createUser(request);
     }
 
-    @GetMapping("/admin/users")
-    public List<UserDto> getUsers(
-            @RequestParam(value = "ids", required = false) List<Long> ids,
-            @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
-            @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
-        return userService.getUsers(ids, from, size);
+    @GetMapping
+    public List<UserDto> getUsers(@RequestParam(name = "ids", required = false) List<Long> ids,
+                                  @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                  @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
+        return userService.getUsersByIds(ids, from, size);
     }
 
-    @DeleteMapping("/admin/users/{userId}")
+    @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCategoryById(@PathVariable("userId") Long userId) {
+    public void deleteUser(@PathVariable(name = "userId") Long userId) {
         userService.deleteUserById(userId);
     }
 }

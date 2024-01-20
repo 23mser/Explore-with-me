@@ -1,16 +1,16 @@
 package ru.practicum.dto;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
-@Value
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class StatDto {
-    @NotBlank
-    String app;
-    @NotBlank
-    String uri;
-    @NotNull
-    Long hits;
+    private String app;
+    private String uri;
+    private Long hits;
 }

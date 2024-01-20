@@ -1,31 +1,29 @@
 package ru.practicum.ewm.categories.dto;
 
-import org.springframework.data.domain.Page;
+import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.categories.model.Category;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class CategoryMapper {
 
-    private CategoryMapper() {
+    public Category toCategory(CategoryDto categoryDto) {
+        return Category.builder()
+                .name(categoryDto.getName())
+                .build();
     }
 
-    public static Category toCategory(NewCategoryDto newCategoryDto) {
-        Category category = new Category();
-
-        category.setName(newCategoryDto.getName());
-
-        return category;
+    public CategoryDto toCategoryDto(Category category) {
+        return CategoryDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .build();
     }
 
-    public static CategoryDto toCategoryDto(Category category) {
-        return new CategoryDto(category.getId(), category.getName());
-    }
-
-    public static List<CategoryDto> toCategoryDto(Page<Category> categories) {
-        return categories
-                .stream()
+    public List<CategoryDto> toCategoryDtosList(List<Category> categories) {
+        return categories.stream()
                 .map(CategoryMapper::toCategoryDto)
                 .collect(Collectors.toList());
     }

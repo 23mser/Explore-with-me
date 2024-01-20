@@ -2,18 +2,26 @@ package ru.practicum.server.model;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "stats")
 public class Stat {
     @Id
-    private String uri;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column
     private String app;
-    private Long hits;
+    @Column
+    private String uri;
+    @Column
+    private String ip;
+    @Column
+    private LocalDateTime timestamp;
 }

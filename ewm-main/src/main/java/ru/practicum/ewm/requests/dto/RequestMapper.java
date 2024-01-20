@@ -1,41 +1,26 @@
 package ru.practicum.ewm.requests.dto;
 
-import ru.practicum.ewm.events.model.State;
+import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.requests.model.Request;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class RequestMapper {
-
-    private RequestMapper() {
+    public RequestDto toDto(Request request) {
+        return RequestDto.builder()
+                .id(request.getId())
+                .event(request.getEvent().getId())
+                .created(request.getCreated())
+                .requester(request.getId())
+                .status(request.getStatus())
+                .build();
     }
 
-    public static RequestDto toRequestDto(Request request) {
-        return new RequestDto(
-                request.getId(),
-                request.getEventId(),
-                request.getRequesterId(),
-                request.getStatus(),
-                request.getCreated());
-    }
-
-    public static List<RequestDto> toRequestDto(List<Request> requests) {
-        return requests
-                .stream()
-                .map(RequestMapper::toRequestDto)
+    public  List<RequestDto> toDtoList(List<Request> requests) {
+        return requests.stream()
+                .map(RequestMapper::toDto)
                 .collect(Collectors.toList());
-    }
-
-    public static Request toRequest(Long eventId,
-                                    Long requesterId,
-                                    State status) {
-        Request request = new Request();
-
-        request.setRequesterId(requesterId);
-        request.setEventId(eventId);
-        request.setStatus(status);
-
-        return request;
     }
 }

@@ -1,130 +1,104 @@
 package ru.practicum.ewm.events.dto;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.categories.dto.CategoryDto;
 import ru.practicum.ewm.categories.model.Category;
 import ru.practicum.ewm.events.model.Event;
+import ru.practicum.ewm.events.model.EventState;
 import ru.practicum.ewm.locations.dto.LocationDto;
-import ru.practicum.ewm.locations.dto.NewLocationDto;
 import ru.practicum.ewm.locations.model.Location;
-import ru.practicum.ewm.users.dto.UserDto;
 import ru.practicum.ewm.users.dto.UserShortDto;
 import ru.practicum.ewm.users.model.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class EventMapper {
-
-    private EventMapper() {
+    public Event toEvent(NewEventDto eventNewDto, Category category, User initiator) {
+        return Event.builder()
+                .annotation(eventNewDto.getAnnotation())
+                .category(category)
+                .confirmedRequests(0)
+                .createdOn(LocalDateTime.now())
+                .description(eventNewDto.getDescription())
+                .eventDate(eventNewDto.getEventDate())
+                .initiator(initiator)
+                .location(Location.builder()
+                        .lat(eventNewDto.getLocation().getLat())
+                        .lon(eventNewDto.getLocation().getLon())
+                        .build())
+                .paid(eventNewDto.getPaid())
+                .participantLimit(eventNewDto.getParticipantLimit())
+                .requestModeration(eventNewDto.getRequestModeration())
+                .title(eventNewDto.getTitle())
+                .state(EventState.PENDING)
+                .publishedOn(LocalDateTime.now())
+                .views(0)
+                .build();
     }
 
-    public static Event toEvent(NewEventDto newEventDto,
-                                LocationDto locationDto,
-                                UserDto userDto,
-                                CategoryDto categoryDto) {
-        Event event = new Event();
-        Category category = new Category();
-        Location location = new Location();
-        User user = new User();
-
-        user.setId(userDto.getId());
-        user.setName(userDto.getName());
-        user.setEmail(userDto.getEmail());
-
-        location.setId(locationDto.getId());
-        location.setLat(locationDto.getLat());
-        location.setLon(locationDto.getLon());
-
-        category.setId(categoryDto.getId());
-        category.setName(categoryDto.getName());
-
-        event.setAnnotation(newEventDto.getAnnotation());
-        event.setDescription(newEventDto.getDescription());
-        event.setEventDate(newEventDto.getEventDate());
-        event.setPaid(newEventDto.getPaid());
-        event.setParticipantLimit(newEventDto.getParticipantLimit());
-        event.setRequestModeration(newEventDto.getRequestModeration());
-        event.setTitle(newEventDto.getTitle());
-        event.setState(newEventDto.getStateAction());
-
-        event.setLocation(location);
-        event.setCategory(category);
-        event.setInitiator(user);
-
-        return event;
+    public EventShortDto toEventShortDto(Event event) {
+        return EventShortDto.builder()
+                .id(event.getId())
+                .annotation(event.getAnnotation())
+                .category(CategoryDto.builder()
+                        .id(event.getCategory().getId())
+                        .name(event.getCategory().getName())
+                        .build())
+                .confirmedRequests(event.getConfirmedRequests())
+                .eventDate(event.getEventDate())
+                .initiator(UserShortDto.builder()
+                        .id(event.getInitiator().getId())
+                        .name(event.getInitiator().getName())
+                        .build())
+                .paid(event.getPaid())
+                .views(event.getViews())
+                .title(event.getTitle())
+                .confirmedRequests(event.getConfirmedRequests())
+                .build();
     }
 
-    public static EventDto toEventDto(Event event) {
-        CategoryDto categoryDto = new CategoryDto(
-                event.getCategory().getId(),
-                event.getCategory().getName());
-        UserShortDto userShortDto = new UserShortDto(
-                event.getInitiator().getId(),
-                event.getInitiator().getName());
-        NewLocationDto newLocationDto = new NewLocationDto(
-                event.getLocation().getLat(),
-                event.getLocation().getLon());
-
-        return new EventDto(
-                event.getId(),
-                event.getAnnotation(),
-                categoryDto,
-                event.getConfirmedRequests(),
-                event.getCreatedOn(),
-                event.getDescription(),
-                event.getEventDate(),
-                userShortDto,
-                newLocationDto,
-                event.getPaid(),
-                event.getParticipantLimit(),
-                event.getPublishedOn(),
-                event.getRequestModeration(),
-                event.getState(),
-                event.getTitle(),
-                0L);
+    public EventFullDto toEventFullDto(Event event) {
+        return EventFullDto.builder()
+                .id(event.getId())
+                .annotation(event.getAnnotation())
+                .category(CategoryDto.builder()
+                        .id(event.getCategory().getId())
+                        .name(event.getCategory().getName())
+                        .build())
+                .confirmedRequests(event.getConfirmedRequests())
+                .createdOn(event.getCreatedOn())
+                .description(event.getDescription())
+                .eventDate(event.getEventDate())
+                .initiator(UserShortDto.builder()
+                        .id(event.getInitiator().getId())
+                        .name(event.getInitiator().getName())
+                        .build())
+                .location(LocationDto.builder()
+                        .lat(event.getLocation().getLat())
+                        .lon(event.getLocation().getLon())
+                        .build())
+                .paid(event.getPaid())
+                .participantLimit(event.getParticipantLimit())
+                .publishedOn(event.getPublishedOn())
+                .requestModeration(event.getRequestModeration())
+                .state(event.getState())
+                .title(event.getTitle())
+                .views(event.getViews())
+                .build();
     }
 
-    public static EventDto toEventDto(Event event, Long hits) {
-        CategoryDto categoryDto = new CategoryDto(
-                event.getCategory().getId(),
-                event.getCategory().getName());
-        UserShortDto userShortDto = new UserShortDto(
-                event.getInitiator().getId(),
-                event.getInitiator().getName());
-        NewLocationDto newLocationDto = new NewLocationDto(
-                event.getLocation().getLat(),
-                event.getLocation().getLon());
-
-        return new EventDto(
-                event.getId(),
-                event.getAnnotation(),
-                categoryDto,
-                event.getConfirmedRequests(),
-                event.getCreatedOn(),
-                event.getDescription(),
-                event.getEventDate(),
-                userShortDto,
-                newLocationDto,
-                event.getPaid(),
-                event.getParticipantLimit(),
-                event.getPublishedOn(),
-                event.getRequestModeration(),
-                event.getState(),
-                event.getTitle(),
-                hits);
+    public List<EventShortDto> toEventShortDtoList(List<Event> events) {
+        return events.stream()
+                .map(EventMapper::toEventShortDto)
+                .collect(Collectors.toList());
     }
 
-    public static List<EventDto> toEventDto(List<Event> events, Map<String, Long> eventViews) {
-        return events.stream().map(event -> {
-            Long hits = eventViews.get(String.format("/events/%s", event.getId()));
-
-            return toEventDto(event, hits != null ? hits : 0);
-        }).collect(Collectors.toList());
-    }
-
-    public static List<EventDto> toEventDto(Set<Event> events) {
-        return events.stream().map(EventMapper::toEventDto).collect(Collectors.toList());
+    public List<EventFullDto> toEventFullDtoList(List<Event> events) {
+        return events.stream()
+                .map(EventMapper::toEventFullDto)
+                .collect(Collectors.toList());
     }
 }

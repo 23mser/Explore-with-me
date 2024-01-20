@@ -1,42 +1,47 @@
 package ru.practicum.ewm.events.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
-import ru.practicum.ewm.events.model.State;
+import lombok.*;
 import ru.practicum.ewm.locations.dto.LocationDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 
-@Value
+@Setter
+@Getter
 @Builder
+@ToString
 @AllArgsConstructor
-@Jacksonized
+@NoArgsConstructor
 public class NewEventDto {
-    @NotBlank
-    @Size(min = 20, max = 2000)
-    String annotation;
-    @NotNull
-    Long category;
-    @NotBlank
-    @Size(min = 20, max = 7000)
-    String description;
-    @NotNull
+    @Size(min = 20, max = 2000, message = "Краткое описание должна быть 20 - 2000 символов")
+    @NotBlank(message = "Краткое описание не может быть пустым или отсутствовать")
+    private String annotation;
+
+    @NotNull(message = "Категория не может быть null")
+    @Positive(message = "Id категории должно быть положительным числом")
+    private Long category;
+
+    @Size(min = 20, max = 7000, message = "Длина описание должна быть 20 - 2000 символов")
+    @NotBlank(message = "Description can not be empty or null")
+    private String description;
+
+    @NotNull(message = "Дата события не может быть null")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime eventDate;
-    @NotNull
-    LocationDto location;
-    Boolean paid;
-    @NotNull
-    Integer participantLimit;
-    Boolean requestModeration;
-    @NotBlank
-    @Size(min = 3, max = 120)
-    String title;
-    State stateAction;
+    private LocalDateTime eventDate;
+
+    @NotNull(message = "Локация не может быть null")
+    private LocationDto location;
+
+    private Boolean paid = false;
+
+    @PositiveOrZero
+    private Integer participantLimit = 0;
+
+    private Boolean requestModeration = true;
+
+    @Size(min = 3, max = 120, message = "Длина названия должна быть 20 - 2000 символов")
+    @NotBlank(message = "Название не может быть пустым или отсутствовать")
+    private String title;
+
 }

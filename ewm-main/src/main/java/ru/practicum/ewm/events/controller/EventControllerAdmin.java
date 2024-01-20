@@ -1,42 +1,40 @@
 package ru.practicum.ewm.events.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.events.dto.EventDto;
-import ru.practicum.ewm.events.dto.NewEventDto;
-import ru.practicum.ewm.events.model.State;
+import ru.practicum.ewm.events.dto.EventFullDto;
+import ru.practicum.ewm.events.dto.EventUpdateAdminRequest;
 import ru.practicum.ewm.events.service.EventService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@RequestMapping("/admin/events")
 @RequiredArgsConstructor
 public class EventControllerAdmin {
-
     private final EventService eventService;
 
-    @PatchMapping("/admin/events/{eventId}")
-    public EventDto updateEventByUserIdAndEventId(@PathVariable("eventId") Long eventId,
-                                                  @RequestBody(required = false) NewEventDto newEventDto) {
-        return eventService.updateEventByEventId(eventId, newEventDto);
+    @GetMapping
+    public List<EventFullDto> getEvents(@RequestParam(name = "users", required = false) List<Long> users,
+                                        @RequestParam(name = "states", required = false) List<String> states,
+                                        @RequestParam(name = "categories", required = false) List<Long> categories,
+                                        @RequestParam(name = "rangeStart", required = false)
+                                        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startDate,
+                                        @RequestParam(name = "rangeEnd", required = false)
+                                        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endDate,
+                                        @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                        @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
+        return eventService.getAllEvents(users, states, categories, startDate, endDate, from, size);
     }
 
-    @GetMapping("/admin/events")
-    public List<EventDto> getEvents(@RequestParam(value = "rangeStart", required = false)
-                                    LocalDateTime rangeStart,
-                                    @RequestParam(value = "rangeEnd", required = false)
-                                    LocalDateTime rangeEnd,
-                                    @RequestParam(value = "users", required = false)
-                                    List<Long> users,
-                                    @RequestParam(value = "states", required = false)
-                                    List<State> states,
-                                    @RequestParam(value = "categories", required = false)
-                                    List<Long> categories,
-                                    @RequestParam(value = "from", required = false, defaultValue = "0")
-                                    Integer from,
-                                    @RequestParam(value = "size", required = false, defaultValue = "10")
-                                    Integer size) {
-        return eventService.getEvents(rangeStart, rangeEnd, users, states, categories, from, size);
+    @PatchMapping("/{eventId}")
+    public EventFullDto updateEvent(@PathVariable(name = "eventId") Long eventId,
+                                    @RequestBody @Valid EventUpdateAdminRequest request) {
+        return eventService.updateEventById(eventId, request);
     }
 }

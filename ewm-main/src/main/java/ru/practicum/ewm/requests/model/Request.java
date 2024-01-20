@@ -1,30 +1,36 @@
 package ru.practicum.ewm.requests.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import ru.practicum.ewm.events.model.State;
+import ru.practicum.ewm.events.model.Event;
+import ru.practicum.ewm.users.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "requests")
+@Builder
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "requests")
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "event_id", nullable = false)
-    private Long eventId;
-    @Column(name = "requester_id", nullable = false)
-    private Long requesterId;
-    @Column(name = "status", nullable = false)
-    private State status;
-    @Column(name = "created", nullable = false)
-    @CreationTimestamp
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
+    private Event event;
+
+    @ManyToOne
+    @JoinColumn(name = "requester_id")
+    private User requester;
+
+    @Enumerated(EnumType.STRING)
+    private RequestStatus status;
 }

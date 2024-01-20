@@ -1,36 +1,36 @@
 package ru.practicum.ewm.categories.controller;
 
-import ru.practicum.ewm.categories.service.CategoryService;
-import ru.practicum.ewm.categories.dto.CategoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.categories.dto.NewCategoryDto;
+import ru.practicum.ewm.categories.dto.CategoryDto;
+import ru.practicum.ewm.categories.service.CategoryService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/admin/categories")
+@RequiredArgsConstructor
 public class CategoryControllerAdmin {
-
     private final CategoryService categoryService;
 
-    @PostMapping("/categories")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryDto create(@RequestBody @Valid NewCategoryDto newCategoryDto) {
-        return categoryService.create(newCategoryDto);
+    public CategoryDto createCategory(@RequestBody @Valid CategoryDto request) {
+        return categoryService.createCategory(request);
     }
 
-    @DeleteMapping("/categories/{categoryId}")
+    @DeleteMapping("/{catId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCategoryById(@PathVariable("categoryId") Long categoryId) {
+    public void deleteCategory(@PathVariable(name = "catId") @Positive Long categoryId) {
         categoryService.deleteCategoryById(categoryId);
     }
 
-    @PatchMapping("/categories/{categoryId}")
-    public CategoryDto updateCategoryById(@PathVariable("categoryId") Long categoryId,
-                                          @RequestBody @Valid NewCategoryDto newCategoryDto) {
-        return categoryService.updateCategoryById(categoryId, newCategoryDto);
+    @PatchMapping("/{catId}")
+    public CategoryDto updateCategory(@PathVariable(name = "catId") @Positive Long categoryId,
+                                      @RequestBody @Valid CategoryDto request) {
+        return categoryService.updateCategoryById(categoryId, request);
     }
+
 }

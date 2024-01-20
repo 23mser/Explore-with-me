@@ -1,54 +1,43 @@
 package ru.practicum.ewm;
 
-import com.google.gson.Gson;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import ru.practicum.dto.HitDto;
 import ru.practicum.dto.StatDto;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@Service
-public class StatClient extends BaseClient {
+@Component
+@RequiredArgsConstructor
+public class StatClient {
+    private final RestTemplate rest;
 
-    @Autowired
-    public StatClient(@Value("${statistic-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
-                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-                        .build()
-        );
+    @Value("${stats-server.url}")
+    private String serverUrl;
+
+    public void saveInfo(HitDto hitDto) {
+        rest.postForLocation(serverUrl.concat("/hit"), hitDto);
     }
 
-    public StatDto createHit(HitDto hitDto) {
-        Gson gson = new Gson();
-        ResponseEntity<Object> objectResponseEntity = post("/hit", hitDto);
-        String json = gson.toJson(objectResponseEntity.getBody());
-
-        return gson.fromJson(json, StatDto.class);
-    }
-
-    public List<StatDto> getStats(String start, String end, List<String> uris, Boolean unique) {
-        Gson gson = new Gson();
+    public List<StatDto> getStatistics(String start, String end, List<String> uris, Boolean unique) {
         Map<String, Object> parameters = Map.of(
-                "uris", String.join(",", uris),
-                "unique", unique,
                 "start", start,
-                "end", end
-        );
-        ResponseEntity<Object> objectResponseEntity =
-                get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
-        String json = gson.toJson(objectResponseEntity.getBody());
-        StatDto[] viewStatDtoArray = gson.fromJson(json, StatDto[].class);
+                "end", end,
+                "uris", uris,
+                "unique", unique);
 
-        return Arrays.asList(viewStatDtoArray);
+        StatDto[] statistics = rest.getForObject(
+                serverUrl.concat("/stats?start={start}&end={end}&uris={uris}&unique={unique}"),
+                StatDto[].class,
+                parameters);
+
+        if (statistics == null) {
+            return List.of();
+        }
+
+        return List.of(statistics);
     }
 }

@@ -1,17 +1,21 @@
 package ru.practicum.ewm.requests.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Value;
-import ru.practicum.ewm.events.model.State;
+import lombok.*;
+import ru.practicum.ewm.requests.model.RequestStatus;
 
 import java.time.LocalDateTime;
 
-@Value
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RequestDto {
-    Long id;
-    Long event;
-    Long requester;
-    State status;
+    private Long id;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime created;
+    private LocalDateTime created;
+    private Long event;
+    private Long requester;
+    private RequestStatus status;
 }

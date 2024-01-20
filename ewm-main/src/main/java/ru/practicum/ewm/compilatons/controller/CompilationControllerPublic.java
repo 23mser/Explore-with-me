@@ -1,30 +1,29 @@
 package ru.practicum.ewm.compilatons.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.compilatons.dto.CompilationDto;
 import ru.practicum.ewm.compilatons.service.CompilationService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
+@RequestMapping("/compilations")
 @RequiredArgsConstructor
 public class CompilationControllerPublic {
-
     private final CompilationService compilationService;
 
-    @GetMapping("/compilations")
-    public List<CompilationDto> getCompilations(@RequestParam(value = "pinned", required = false) Boolean pinned,
-                                                @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
-                                                @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
-        return compilationService.getCompilations(pinned, from, size);
+    @GetMapping
+    public List<CompilationDto> getComplications(@RequestParam(required = false) Boolean pinned,
+                                                 @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                                 @RequestParam(defaultValue = "10") @Positive Integer size) {
+        return compilationService.getAllCompilations(pinned, from, size);
     }
 
-    @GetMapping("/compilations/{compId}")
-    public CompilationDto getCompilationById(@PathVariable("compId") Long compId) {
-        return compilationService.getCompilationById(compId);
+    @GetMapping("/{compId}")
+    public CompilationDto getCompilation(@PathVariable(name = "compId") @Positive Long compilationId) {
+        return compilationService.getCompilationById(compilationId);
     }
 }

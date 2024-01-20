@@ -1,34 +1,30 @@
 package ru.practicum.ewm.users.dto;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.users.model.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class UserMapper {
-
-    private UserMapper() {
+    public UserDto toUserDto(User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
     }
 
-    public static User toUser(NewUserDto newUserDto) {
-        User user = new User();
-
-        user.setName(newUserDto.getName());
-        user.setEmail(newUserDto.getEmail());
-
-        return user;
+    public User toUser(UserDto userDto) {
+        return User.builder()
+                .name(userDto.getName())
+                .email(userDto.getEmail())
+                .build();
     }
 
-    public static UserDto toUserDto(User user) {
-        return new UserDto(
-                user.getId(),
-                user.getName(),
-                user.getEmail());
-    }
-
-    public static List<UserDto> toUserDto(List<User> users) {
-        return users
-                .stream()
+    public List<UserDto> toUserDtosList(List<User> users) {
+        return users.stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
