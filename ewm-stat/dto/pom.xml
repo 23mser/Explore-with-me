@@ -11,7 +11,7 @@
 	<artifactId>dto</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>Explore With Me DTO</name>
+	<name>Explore With Me - DTO</name>
 
 	<dependencies>
 		<dependency>

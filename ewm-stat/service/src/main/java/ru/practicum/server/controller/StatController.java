@@ -1,32 +1,33 @@
 package ru.practicum.server.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.CreatedHitDto;
 import ru.practicum.dto.HitDto;
 import ru.practicum.dto.StatDto;
 import ru.practicum.server.service.StatService;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RequiredArgsConstructor
 @RestController
+@RequiredArgsConstructor
 public class StatController {
-
-    private final StatService statService;
+    private final StatService service;
 
     @PostMapping("/hit")
-    public CreatedHitDto createHitDto(@RequestBody @Valid HitDto hitDto) {
-        return statService.createHitDto(hitDto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addHit(@RequestBody HitDto hitDto) {
+        service.saveRecord(hitDto);
     }
 
     @GetMapping("/stats")
-    public List<StatDto> getStats(@RequestParam("start") LocalDateTime start,
-                                  @RequestParam("end") LocalDateTime end,
-                                  @RequestParam(value = "uris", required = false, defaultValue = "") List<String> uris,
-                                  @RequestParam(value = "unique", required = false, defaultValue = "false") Boolean unique) {
-        return statService.getStats(start, end, uris, unique);
+    public List<StatDto> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                  @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+                                  @RequestParam(required = false) List<String> uris,
+                                  @RequestParam(defaultValue = "false") boolean unique) {
+
+        return service.getAllStats(start, end, uris, unique);
     }
 }

@@ -1,21 +1,22 @@
 package ru.practicum.server.mapper;
 
-import ru.practicum.dto.StatDto;
+import ru.practicum.dto.HitDto;
 import ru.practicum.server.model.Stat;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class StatMapper {
 
-    private StatMapper() {
+    public static Stat toStat(HitDto hitDto) {
+        LocalDateTime dateTime = LocalDateTime.from(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .parse(hitDto.getTimestamp()));
 
-    }
-
-    public static List<StatDto> toStatDto(List<Stat> stats) {
-        return stats
-                .stream()
-                .map(stat -> new StatDto(stat.getApp(), stat.getUri(), stat.getHits()))
-                .collect(Collectors.toList());
+        return Stat.builder()
+                .app(hitDto.getApp())
+                .uri(hitDto.getUri())
+                .ip(hitDto.getIp())
+                .timestamp(dateTime)
+                .build();
     }
 }
