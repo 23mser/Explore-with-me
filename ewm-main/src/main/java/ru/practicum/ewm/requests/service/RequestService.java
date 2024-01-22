@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -154,5 +155,9 @@ public class RequestService {
 
         List<Request> requests = requestRepository.findAllByEventId(eventId);
         return RequestMapper.toDtoList(requests);
+    }
+
+    public Optional<Request> getRequestByUserIdAndEventId(Long userId, Long eventId) {
+        return requestRepository.findByEventIdAndRequesterId(eventId, userId);
     }
 }
