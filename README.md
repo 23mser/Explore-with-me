@@ -1,111 +1,93 @@
-Explore with me - микросервисное приложение-афиша мероприятий
+# ExploreWithMe
 
-Java, Spring (Boot, Data, Security, MVC), PostgreSQL, REST API, Docker, Mockito, JUnit, Postman, MapStruct, Lombok, Thymeleaf, JavaScript, CSS, HTML
+ExploreWithMe is a Spring Boot application that allows users to share information about interesting events and find
+companions for participation. It helps users efficiently plan their leisure time by providing a platform to organize and
+participate in various events.
 
-О проекте
+## Features
 
-Приложение для размещения мероприятий и поиска компаний для участия в них
+- Public API for searching and filtering events with options for sorting by event views (retrieved from the statistics
+  service) or event dates.
+- Private API accessible only to authorized users, which includes the following features:
+    - Adding, editing, and viewing events.
+    - Submitting requests for event participation.
+    - Confirming event participation requests by the event creator.
+- Administrative API for service administrators, which includes the following features:
+    - Adding, modifying, and deleting event categories.
+    - Creating, removing, and pinning event collections on the main page.
+    - Moderating user-submitted events (publication or rejection).
+    - User management (adding, activation, viewing, and deletion).
+- Event creation and management with a lifecycle that includes creation, awaiting publication, publication, and
+  publication cancellation.
+- User registration and authentication.
+- Event rating system.
+- Statistics service to track event views, user IPs, and endpoint accesses.
+- Predefined event categories and collections created by administrators.
+- Event view counts provided by the statistics service.
 
+## Data Model
 
+The event lifecycle includes the following stages:
 
-Приложение содержит два микросервиса:
+1. Creation
+2. Awaiting publication (automatically set after event creation)
+3. Publication (set by an administrator)
+4. Cancellation of publication (set either by the administrator or the event initiator during the awaiting publication
+   stage)
 
-main-service для бизнес-логики
-stats-service для сбора статистики просмотра событий по ip, который состоит из трех модулей
+## Authentication and Authorization
 
+Both ExploreWithMe services operate within a VPN (Virtual Private Network), which allows for secure communication
+between the services and the external world. A network gateway is responsible for contacting the authentication and
+authorization system and forwarding requests to the services. If the gateway allows a request to access the private or
+administrative API, it means the request has successfully passed authentication and authorization.
 
-У каждого микросервиса есть своя база данных.
-Микросервисы и базы данных запускаются в собственных Docker контейнерах (4 шт).
+## Statistics Service
 
-Основная функциональность:
+The statistics service collects information on user interactions, such as the number of user requests to event lists and
+the number of requests for detailed event information. This data is used to generate statistics about the application's
+performance.
 
-Неавторизованные пользователи
+## Technologies Used
 
-просматривать все события, в том числе по категориям
-видеть детали отдельных событий
-видеть закрепленные подборки событий
-Авторизованные пользователи
+- Spring Boot
+- Hibernate
+- Docker
+- PostgreSQL
 
-добавление в приложение новые мероприятия, редактировать их и просматривать после добавления
-подача заявок на участие в интересующих мероприятиях
-создатель мероприятия может подтверждать заявки, которые отправили другие пользователи сервиса
-Администраторы
+## Getting Started
 
-добавление, изменение и удаление категорий для событий
-добавление, удаление и закрепление на главной странице подборки мероприятий
-модерация событий, размещённых пользователями, — публикация или отклонение
-управление пользователями — добавление, активация, просмотр и удаление
-Эндпоинты
+### Prerequisites
 
-main-service
+Ensure you have the following installed on your system:
 
-POST /users/{userId}/events - добавить новое событие
-GET /users/{userId}/events/{eventId} - получить событие
-PATCH /users/{userId}/events/{eventId} - изменить событие
-GET /users/{userId}/events - получить события пользователя
-GET /users/{userId}/events/{eventId}/requests - получить запросы пользователя на участие в событии
-PATCH /users/{userId}/events/{eventId}/requests - изменить статус (подтверждение, отмена) заявок на участие пользователя в событии
+- Java Development Kit (JDK) 11 or later
+- Docker
+- PostgreSQL
 
-GET /categories - получить все категории
-GET /categories/{catId} - получить категорию
+### Building the Project
 
-GET /compilations - получить все подборки событий
-GET /compilations/{compId} - получить подборку событий
+1. Clone the repository:
 
-GET /admin/events - получить события по любым параметрам:
-users - список id пользователей
-states - список статусов события (PENDING, PUBLISHED, CANCELED)
-categories - список id категорий событий
-rangeStart - начало временного отрезка в формате yyyy-MM-dd HH:mm:ss
-rangeEnd - конец временного отрезка в формате yyyy-MM-dd HH:mm:ss
-from - параметр для пагинации
-size - параметр для пагинации
-PATCH /admin/events/{eventId} - изменить событие
+   ```git clone https://github.com/23mser/Explore-with-me.git```
 
-GET /events - получить события по любым параметрам:
-text - текст для поиска в названии и описании событий
-categories - список id категорий событий
-paid - только платные события (true/false)
-rangeStart - начало временного отрезка в формате yyyy-MM-dd HH:mm:ss
-rangeEnd - конец временного отрезка в формате yyyy-MM-dd HH:mm:ss
-onlyAvailable - только доступные события, т.е. у которых еще не исчерпан лимит участников (true/false)
-sort - способ сортировки событий (EVENT_DATE, VIEWS)
-from - параметр для пагинации
-size - параметр для пагинации
-GET /events/{id} - получить событие
+2. Change the current directory to the project root:
 
-POST /users/{userId}/requests - добавить запрос на участие в событии
-GET /users/{userId}/requests - получить запросы пользователя на участие в событиях
-DELETE /users/{userId}/requests/{requestId}/cancel - отменить запрос на участие в событии
+   ```cd java-explore-with-me```
 
-POST /users/{userId}/events/{eventId}/comments - добавить комментарий к событию
-PATCH /users/{userId}/events/{eventId}/comments/{commentId} - обновить комментарий
-GET /users/{userId}/events/{eventId}/comments/{commentId} - получить комментарий к событию
-DELETE /users/{userId}/events/{eventId}/comments/{commentId} - удалить комментарий к событию
-GET /users/{userId}/events/{eventId}/comments - получить список комментариев пользователя к событию
-GET /users/{userId}/comments - получить все комментарии пользователя
+3. Build the project using Maven:
 
-POST /admin/users - добавить пользователя
-GET /admin/users - получить всех пользователей
-DELETE /admin/users/{userId} - удалить пользователя
-POST /admin/compilations - добавить подборку событий
-DELETE /admin/compilations/{compId} - удалить подборку событий
-PATCH /admin/compilations/{compId} - обновить подборку событий
-POST /admin/categories - добавить новую категорию
-GET /admin/categories/{catId} - получить категорию событий
-DELETE /admin/categories/{catId} - удалить категорию
-GET /admin/comments - получить комментрии по любым параметрам:
-text - текст для поиска в содержании комментария
-users - список id пользователей
-events - список id событий
-statuses - статусы событий (PENDING, PUBLISHED, DELETED)
-rangeStart - начало временного отрезка в формате yyyy-MM-dd HH:mm:ss
-rangeEnd - конец временного отрезка в формате yyyy-MM-dd HH:mm:ss
-from - параметр для пагинации
-size - параметр для пагинации
-PATCH /admin/comments - изменить статусы комментариев
+   ```./mvnw clean install```
 
-stats-service
+4. Run the Docker container for PostgreSQL:
 
-GET /stats - Получение статистики по посещениям
-POST /hit - Сохранение информации о том, что на uri конкретного сервиса был отправлен запрос пользователем
+   ```docker-compose up -d```
+
+### Running the Application
+
+Run the application using the following command:
+
+```./mvnw spring-boot:run```
+
+The application will start on port 8080. Access the public API at `http://localhost:8080`, and the administrative API
+at `http://localhost:8080/admin`.
