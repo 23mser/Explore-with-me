@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.dto.HitDto;
 import ru.practicum.dto.StatDto;
 import ru.practicum.ewm.StatClient;
+import ru.practicum.ewm.comments.dto.CommentDto;
+import ru.practicum.ewm.comments.service.CommentService;
 import ru.practicum.ewm.events.dto.EventFullDto;
 import ru.practicum.ewm.events.dto.EventMapper;
 import ru.practicum.ewm.events.dto.EventShortDto;
@@ -30,6 +32,7 @@ public class EventPublicService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final EventRepository eventRepository;
     private final StatClient statClient;
+    private final CommentService commentService;
 
     public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid,
                                             LocalDateTime startDate, LocalDateTime endDate,
@@ -83,13 +86,14 @@ public class EventPublicService {
         Event event = eventRepository.findByIdAndState(eventId, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Событие не найдено"));
 
+        List<CommentDto> comments = commentService.getAllCommentsByEventId(eventId, 0, 10);
         saveInfoToStatistics(ip, uri);
         updateViewsOfEvents(List.of(event));
+        EventFullDto eventDto = EventMapper.toEventFullDto(event);
+        eventDto.setComments(comments);
 
-        return EventMapper.toEventFullDto(event);
+        return eventDto;
     }
-
-
 
     public List<Event> getAllEventsByIdIn(Set<Long> events) {
         return eventRepository.findAllByIdIn(events);

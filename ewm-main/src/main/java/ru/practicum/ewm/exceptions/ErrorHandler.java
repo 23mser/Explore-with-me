@@ -118,4 +118,17 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
+
+    @ExceptionHandler(CommentException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessException(final CommentException e) {
+        log.error("Error CommentException {}", e.getMessage());
+
+        return ErrorResponse.builder()
+                .status(HttpStatus.FORBIDDEN.name())
+                .reason("Comment exception")
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
 }

@@ -43,5 +43,4 @@ public class NewEventDto {
     @Size(min = 3, max = 120, message = "Длина названия должна быть 20 - 2000 символов")
     @NotBlank(message = "Название не может быть пустым или отсутствовать")
     private String title;
-
 }

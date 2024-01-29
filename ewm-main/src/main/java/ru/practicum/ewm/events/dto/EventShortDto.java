@@ -3,9 +3,11 @@ package ru.practicum.ewm.events.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.ewm.categories.dto.CategoryDto;
+import ru.practicum.ewm.comments.dto.CommentDto;
 import ru.practicum.ewm.users.dto.UserShortDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Setter
 @Getter
@@ -23,4 +25,5 @@ public class EventShortDto {
     private Boolean paid;
     private String title;
     private Integer views;
+    private List<CommentDto> comments;
 }

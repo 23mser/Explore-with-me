@@ -117,7 +117,7 @@ public class EventService {
         return EventMapper.toEventFullDto(updatedEvent);
     }
 
-    private Event getEventByIdIfExist(Long eventId) {
+    public Event getEventByIdIfExist(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(() ->
                 new NotFoundException("Событие не найдено"));
     }
